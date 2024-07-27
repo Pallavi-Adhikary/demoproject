@@ -1,14 +1,50 @@
-import React from 'react';
-import {View, Text, Touchable, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Background from './Background';
 import Button from './Button';
-import {darkGreen} from './Constants';
+import { darkGreen } from './Constants';
 import Field from './Field';
 
-const Signup = props => {
+const Signup = (props) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleSignup = async () => {
+    if (!firstName || !lastName || !email || !contactNumber || !password || !confirmPassword) {
+      Alert.alert("Error", "Please fill all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords don't match");
+      return;
+    }
+
+    try {
+      const userData = {
+        firstName,
+        lastName,
+        email,
+        contactNumber,
+        password,
+      };
+
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      Alert.alert('Success', 'Account created');
+      props.navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save user data');
+    }
+  };
+
   return (
     <Background>
-      <View style={{alignItems: 'center', width: 460}}>
+      <View style={{ alignItems: 'center', width: 460 }}>
         <Text
           style={{
             color: 'black',
@@ -36,26 +72,23 @@ const Signup = props => {
             paddingTop: 50,
             alignItems: 'center',
           }}>
-          <Field placeholder="First Name" />
-          <Field placeholder="Last Name" />
-          <Field
-            placeholder="Email / Username"
-            keyboardType={'email-address'}
-          />
-          <Field placeholder="Contact Number" keyboardType={'number'} />
-          <Field placeholder="Password" secureTextEntry={true} />
-          <Field placeholder="Confirm Password" secureTextEntry={true} />
+          <Field placeholder="First Name" value={firstName} onChangeText={setFirstName} />
+          <Field placeholder="Last Name" value={lastName} onChangeText={setLastName} />
+          <Field placeholder="Email / Username" keyboardType="email-address" value={email} onChangeText={setEmail} />
+          <Field placeholder="Contact Number" keyboardType="number-pad" value={contactNumber} onChangeText={setContactNumber} />
+          <Field placeholder="Password" secureTextEntry={true} value={password} onChangeText={setPassword} />
+          <Field placeholder="Confirm Password" secureTextEntry={true} value={confirmPassword} onChangeText={setConfirmPassword} />
           <View
             style={{
               display: 'flex',
               flexDirection: 'row',
               width: '78%',
-              paddingRight: 16
+              paddingRight: 16,
             }}>
-            <Text style={{color: 'grey', fontSize: 16}}>
+            <Text style={{ color: 'grey', fontSize: 16 }}>
               By signing in, you agree to our{' '}
             </Text>
-            <Text style={{color: darkGreen, fontWeight: 'bold', fontSize: 16}}>
+            <Text style={{ color: darkGreen, fontWeight: 'bold', fontSize: 16 }}>
               Terms & Conditions
             </Text>
           </View>
@@ -64,15 +97,15 @@ const Signup = props => {
             style={{
               display: 'flex',
               flexDirection: 'row',
-              justifyContent :"center",
+              justifyContent: "center",
               width: '78%',
               paddingRight: 16,
               marginBottom: 10
             }}>
-            <Text style={{color: 'grey', fontSize: 16}}>
+            <Text style={{ color: 'grey', fontSize: 16 }}>
               and {" "}
             </Text>
-            <Text style={{color: darkGreen, fontWeight: 'bold', fontSize: 16}}>
+            <Text style={{ color: darkGreen, fontWeight: 'bold', fontSize: 16 }}>
               Privacy Policy
             </Text>
           </View>
@@ -80,10 +113,7 @@ const Signup = props => {
             textColor="white"
             bgColor={darkGreen}
             buttonLabel="Signup"
-            Press={() => {
-              alert('Account created');
-              props.navigation.navigate('Login');
-            }}
+            Press={handleSignup}
           />
           <View
             style={{
@@ -91,13 +121,13 @@ const Signup = props => {
               flexDirection: 'row',
               justifyContent: 'center',
             }}>
-            <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
               Already have an account ?{' '}
             </Text>
             <TouchableOpacity
               onPress={() => props.navigation.navigate('Login')}>
               <Text
-                style={{color: darkGreen, fontWeight: 'bold', fontSize: 16}}>
+                style={{ color: darkGreen, fontWeight: 'bold', fontSize: 16 }}>
                 Login
               </Text>
             </TouchableOpacity>
